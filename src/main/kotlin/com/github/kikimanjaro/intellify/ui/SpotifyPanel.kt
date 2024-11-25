@@ -12,8 +12,8 @@ import javax.swing.plaf.basic.BasicSliderUI
 
 
 class SpotifyPanel(val spotifyStatusUpdater: SpotifyStatusUpdater) : JPanel(BorderLayout()) {
-    val customWidth = 200
-    val customHeight = 200
+    val customWidth = 80
+    val customHeight = 80
 
     private val playPauseButton: JButton
     private val prevButton: JButton
@@ -31,22 +31,33 @@ class SpotifyPanel(val spotifyStatusUpdater: SpotifyStatusUpdater) : JPanel(Bord
         val image: BufferedImage = ImageIO.read(URL(SpotifyService.imageUrl))
         val scaledImage = image.getScaledInstance(customWidth, customHeight, Image.SCALE_SMOOTH)
 
+        songNameLabel = JLabel(SpotifyService.song)
+        songNameLabel.setFont(songNameLabel.font.deriveFont(Font.BOLD, 14f));
+        artistNameLabel = JLabel(SpotifyService.artist)
+
         imageIcon = ImageIcon(scaledImage)
         imageLabel = JLabel(imageIcon)
+        imageLabel.border = BorderFactory.createEmptyBorder(
+            10,
+            10,
+            10,
+            getFontMetrics(font).stringWidth(songNameLabel.text) + 30
+        )
 
-        artistNameLabel = JLabel(SpotifyService.artist, JLabel.CENTER)
-        artistNameLabel.setFont(artistNameLabel.getFont().deriveFont(Font.BOLD, 14f));
-        songNameLabel = JLabel(SpotifyService.song, JLabel.CENTER)
 
         titlePanel = JPanel(BorderLayout())
-        titlePanel.add(artistNameLabel, BorderLayout.NORTH)
-        titlePanel.add(songNameLabel, BorderLayout.SOUTH)
+        titlePanel.setBounds(105, 20, 120, 50)
+        titlePanel.add(artistNameLabel, BorderLayout.SOUTH)
+        titlePanel.add(songNameLabel, BorderLayout.WEST)
 
         val buttonPanel = JPanel()
         buttonPanel.layout = BorderLayout()
         buttonPanel.isOpaque = false
 
-        playPauseButton = JButton()
+        playPauseButton = JButton().apply {
+            background = null
+            border = null
+        }
         if (SpotifyService.isPlaying) {
             playPauseButton.icon = spotifyStatusUpdater.pauseIcon
         } else {
@@ -60,23 +71,29 @@ class SpotifyPanel(val spotifyStatusUpdater: SpotifyStatusUpdater) : JPanel(Bord
             }
             update()
         }
-        prevButton = JButton(spotifyStatusUpdater.prevIcon)
+        prevButton = JButton(spotifyStatusUpdater.prevIcon).apply {
+            background = null
+            border = null
+        }
         prevButton.addActionListener {
             SpotifyService.prevTrack()
             update()
         }
-        nextButton = JButton(spotifyStatusUpdater.nextIcon)
+        nextButton = JButton(spotifyStatusUpdater.nextIcon).apply {
+            background = null
+            border = null
+        }
         nextButton.addActionListener {
             SpotifyService.nextTrack()
             update()
         }
 
-        slider = object  : JSlider(0, SpotifyService.durationMs){
+        slider = object : JSlider(0, SpotifyService.durationMs) {
             override fun updateUI() {
                 setUI(CustomSliderUI(this));
             }
         }
-        slider.setBorder(BorderFactory.createEmptyBorder(6,0,4,0));
+        slider.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 0));
         slider.value = SpotifyService.progressInMs
         slider.addMouseListener(object : java.awt.event.MouseAdapter() {
             override fun mouseReleased(e: java.awt.event.MouseEvent) {
@@ -97,8 +114,8 @@ class SpotifyPanel(val spotifyStatusUpdater: SpotifyStatusUpdater) : JPanel(Bord
         bottomPanel.add(slider, BorderLayout.NORTH)
         bottomPanel.add(buttonPanel, BorderLayout.CENTER)
 
-        add(titlePanel, BorderLayout.NORTH)
-        add(imageLabel, BorderLayout.CENTER)
+        add(titlePanel, BorderLayout.WEST)
+        add(imageLabel, BorderLayout.WEST)
         add(bottomPanel, BorderLayout.SOUTH)
     }
 
@@ -158,7 +175,7 @@ private class CustomSliderUI(b: JSlider?) : BasicSliderUI(b) {
     }
 
     private val isHorizontal: Boolean
-        private get() = slider.orientation == JSlider.HORIZONTAL
+        get() = slider.orientation == JSlider.HORIZONTAL
 
     override fun paint(g: Graphics, c: JComponent) {
         (g as Graphics2D).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
@@ -201,14 +218,19 @@ private class CustomSliderUI(b: JSlider?) : BasicSliderUI(b) {
                 g2.clipRect(0, thumbPos, slider.width, slider.height - thumbPos)
             }
         }
-        g2.color = Color(29,184,84)
+        g2.color = Color(29, 184, 84)
         g2.fill(trackShape)
         g2.clip = clip
     }
 
     override fun paintThumb(g: Graphics) {
         g.color = Color.WHITE
-        g.fillOval(thumbRect.x + thumbRect.width / 4, thumbRect.y + thumbRect.height / 4 , thumbRect.width /2, thumbRect.height /2)
+        g.fillOval(
+            thumbRect.x + thumbRect.width / 4,
+            thumbRect.y + thumbRect.height / 4,
+            thumbRect.width / 2,
+            thumbRect.height / 2
+        )
     }
 
     override fun paintFocus(g: Graphics) {}

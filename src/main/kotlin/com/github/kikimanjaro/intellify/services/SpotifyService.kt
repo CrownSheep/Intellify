@@ -1,7 +1,7 @@
 package com.github.kikimanjaro.intellify.services
 
-import com.github.kikimanjaro.intellify.services.Secret.Companion.clientId
-import com.github.kikimanjaro.intellify.services.Secret.Companion.clientSecret
+import com.github.kikimanjaro.intellify.services.Secret.clientId
+import com.github.kikimanjaro.intellify.services.Secret.clientSecret
 import com.github.kikimanjaro.intellify.ui.SpotifyPanel
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
